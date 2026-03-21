@@ -8,7 +8,8 @@ https://www.comfy.org/ <BR>
 https://github.com/Comfy-Org/ComfyUI<br>
 https://www.comfy.org/cloud<br>
 ## LLMs
-exercises for small models that can be downloaded into a local disk
+exercises for small models that can be downloaded into a local disk <br>
+https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0 <br>
 #AI Basic Exercises
 BAsic exercises for GANs, NNs and others
 
