@@ -1,0 +1,7 @@
+[
+{"instruction":"What is Linux Mint?", "output": "Linux Mint is a free open sourcesystem based in Ubuntu." },
+{"instruction":"What is RAM?", "output": "RAM stands for Random Access Memory"},
+{"instruction":"What is Python?","output":"Python is a popular programming language"},
+{"instruction":"What is a virtual environment?", "output":"is an isolated workspace"}
+]
+
