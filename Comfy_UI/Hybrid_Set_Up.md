@@ -199,6 +199,8 @@ An alternative to localtunnel that embeds ComfyUI directly inside the Colab note
 <BR>
 <BR>
 <BR>
+
+
 ## Part B — Step-by-Step User Guide
 
 ---
