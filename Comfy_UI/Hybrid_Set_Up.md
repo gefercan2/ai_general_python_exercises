@@ -195,7 +195,10 @@ An alternative to localtunnel that embeds ComfyUI directly inside the Colab note
 - If you see a `403` error in the iframe, a browser extension or Firefox's strict mode is blocking it — try Chrome.
 
 ---
-
+<BR>
+<BR>
+<BR>
+<BR>
 ## Part B — Step-by-Step User Guide
 
 ---
