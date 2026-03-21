@@ -30,7 +30,7 @@ This block defines where ComfyUI lives on your Google Drive. All persistent data
 !pip install GitPython
 !pip install comfy-aimdo comfy-kitchen comfyui-frontend-package
 !pip install -r requirements.txt
-!pip install comfy-aimdo==0.1.7   # ⚠️ See warning below
+!pip install comfy-aimdo==0.2.12  # ⚠️ See warning below
 print("imported")
 ```
 **What it does:**
