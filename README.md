@@ -1,12 +1,11 @@
 # References for AI and Python
-References fro exercises t be copied/pasted/opened in Jupyter Notebooks, <BR>
-aditionally there is annotations for terminal installation and actions <BR>
+References fro exercises t be copied/pasted/opened in Jupyter Notebooks,
+aditionally there is annotations for terminal installation and actions 
 ## ComfyUI
-exercises for reference, in thsi case the hybrid setup runs in Google, both Google Drive and Colab's temporary memory,<br>
-this set up is a solution to the big computational requirements of processing files<BR>
-using this template:<br>
-https://colab.research.google.com/github/ltdrdata/ComfyUI-Manager/blob/main/notebooks/comfyui_colab_with_manager.ipynb<br>
-HEre the website and the github repository
+exercises for reference, in thsi case the hybrid setup runs in Google, both Google Drive and Colab's temporary memory,
+this set up is a solution to the big computational requirements of processing files using this template:<br>
+https://colab.research.google.com/github/ltdrdata/ComfyUI-Manager/blob/main/notebooks/comfyui_colab_with_manager.ipynb <br>
+Here the website and the github repository
 https://www.comfy.org/ <BR>
 https://github.com/Comfy-Org/ComfyUI<br>
 https://www.comfy.org/cloud<br>
