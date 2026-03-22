@@ -170,7 +170,7 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 model.eval()
 
-print("\n🤖 DeepSeek R1 Chat — type 'quit' to exit\n")
+print("\n DeepSeek R1 Chat — type 'quit' to exit\n")
 
 while True:
     user_input = input("You: ").strip()
@@ -381,7 +381,7 @@ data = [
 ]
 
 dataset = Dataset.from_list(data)
-print(f"✅ Dataset loaded: {len(dataset)} examples")
+print(f" Dataset loaded: {len(dataset)} examples")
 ```
 
 ---
@@ -441,9 +441,9 @@ trainer = Trainer(
     train_dataset=tokenized_dataset,
 )
 
-print("🚀 Starting fine-tuning... (this will take a while on CPU)")
+print(" Starting fine-tuning... (this will take a while on CPU)")
 trainer.train()
-print("✅ Fine-tuning complete!")
+print(" Fine-tuning complete!")
 ```
 
 > ⏱️ **Time estimate:** With 5 examples and 3 epochs, expect **15–60 minutes** on CPU. Leave it running!
@@ -521,7 +521,7 @@ jupyter notebook
 
 ---
 
-## 🛑 Ending Your Session
+##  Ending Your Session
 
 ```bash
 # In the terminal where Jupyter is running:
@@ -545,7 +545,7 @@ deactivate
 
 ---
 
-## 💡 Troubleshooting
+##   Troubleshooting
 
 | Problem | Fix |
 |---|---|
@@ -558,7 +558,7 @@ deactivate
 
 ---
 
-## 📌 Other Models You Can Swap In
+##  Other Models You Can Swap In
 
 The same code works with these models — just change `model_name`:
 
