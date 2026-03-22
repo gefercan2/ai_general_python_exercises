@@ -255,6 +255,8 @@ In the Jupyter file browser:
 
 ### Step 5: Cell 1 — Install / Verify Libraries
 
+Installing libraries before running an LLM in an AI environment is essential to provide the necessary tools, dependencies, and frameworks (like PyTorch or Transformers) required for the model to function, load data, and run inference. These libraries bridge the gap between raw Python code and specialized AI hardware, ensuring optimized performance
+
 ```python
 # Run this cell once to confirm everything is installed
 import subprocess
