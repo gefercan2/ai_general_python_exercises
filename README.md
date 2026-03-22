@@ -15,6 +15,6 @@ https://www.ibm.com/think/topics/large-language-models#692473873<br>
 https://www.ibm.com/think/topics/llm-parameters<br>
 https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0 <br>
 ## AI Basic Exercises
-Basic exercises for GANs, NNs and others
+Basic exercises for GANs, NNs and others. These were the type of exercises done before the surge of the LLMs and are the basis for them
 
 ## python_exercises
