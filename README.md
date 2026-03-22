@@ -2,7 +2,8 @@
 References fro exercises t be copied/pasted/opened in Jupyter Notebooks,
 aditionally there is annotations for terminal installation and actions 
 ## ComfyUI
-exercises for reference, in thsi case the hybrid setup runs in Google, both Google Drive and Colab's temporary memory,
+ComfyUI is a powerful, open-source, node-based graphical user interface (GUI) for generative AI, primarily used to build, customize, and run Stable Diffusion and other models locally. It enables users to create complex image and video generation pipelines by connecting nodes (similar to a flowchart), offering high control, automation, and efficiency without requiring coding
+Here will be exercises for reference, in thsi case the hybrid setup runs in Google, both Google Drive and Colab's temporary memory,
 this set up is a solution to the big computational requirements of processing files using this template:<br>
 https://colab.research.google.com/github/ltdrdata/ComfyUI-Manager/blob/main/notebooks/comfyui_colab_with_manager.ipynb <br>
 Here the website and the github repository<BR>
