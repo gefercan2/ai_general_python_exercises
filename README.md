@@ -11,7 +11,8 @@ https://github.com/Comfy-Org/ComfyUI<br>
 https://www.comfy.org/cloud<br>
 ## LLMs
 exercises for small models that can be downloaded into a local disk, examples here include DeepSeek and Tiny Llama, bith work realtively slowly in older devices <br>
-https://www.ibm.com/think/topics/llm-parameters
+https://www.ibm.com/think/topics/large-language-models#692473873<br>
+https://www.ibm.com/think/topics/llm-parameters<br>
 https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0 <br>
 ## AI Basic Exercises
 Basic exercises for GANs, NNs and others
