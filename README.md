@@ -18,7 +18,7 @@ https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0 <br>
 Basic exercises for GANs, NNs and others. These were the type of exercises done before the surge of the LLMs and are the basis for them
 
 ## python_exercises
-## linux basic commands
+## Linux basic CLI commands
 Here a list of basic commands for the terminal
 clear: cleans the terminal screen <br>
 man commandname: reference explanation of a command <br> 
