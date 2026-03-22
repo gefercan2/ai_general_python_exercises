@@ -302,6 +302,10 @@ print("✅ Model loaded and ready!")
 
 ### Step 7: Cell 3 — Test Inference
 
+A
+test inference for a Large Language Model (LLM) is the process of running a trained or fine-tuned model on new, unseen data to evaluate its performance, accuracy, and efficiency before deploying it in a production environment. 
+It is essentially the "testing" phase of the inference pipeline—where the model applies its learned patterns to user-provided prompts to generate answers, code, or summaries, but without updating its parameters.
+
 ```python
 def ask_deepseek(question, max_tokens=300):
     inputs = tokenizer(question, return_tensors="pt")
