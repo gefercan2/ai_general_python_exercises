@@ -41,7 +41,7 @@ cp filename1.extension filename2.extension: copy the contents from file 1 to fil
 curl websitename: gets html view? <br>
 top: gets an overview of processes <br>
 
-references can be found in:
+references can be found in:<br>
 www.geeksforgeeks.org/linux-unix/basic-linux-commands/<br>
 ubuntu.com/tutorials/comman-line-for-beginners#1-overview<br>
 linuxcommand.org/lc3_lts0010.php<br>
