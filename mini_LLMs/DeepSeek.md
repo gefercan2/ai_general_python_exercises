@@ -324,6 +324,8 @@ print(answer)
 ---
 
 ### Step 8: Cell 4 — LoRA Fine-Tuning Setup
+a
+LoRA (Low-Rank Adaptation) is a lightweight, specialized plugin or "patch" used to fine-tune large machine learning models (like Stable Diffusion or LLMs) without needing to retrain the entire model. It operates as a small modification file (typically 50MB–300MB) that adds specific styles, characters, or concepts to a base model, enhancing consistency and specificity.
 
 Install fine-tuning dependencies:
 
