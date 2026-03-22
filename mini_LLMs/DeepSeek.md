@@ -273,6 +273,10 @@ print("✅ All packages ready!")
 
 ### Step 6: Cell 2 — Load the Model
 
+In the context of Large Language Models (LLMs) and Artificial Intelligence (AI), a
+tokenizer is a foundational component that acts as the bridge between human language and mathematical computation. It breaks raw input text into smaller, manageable chunks called tokens and maps them to unique numerical IDs. 
+Because neural networks can only process numbers, not text, the tokenizer is the necessary first step before an LLM can understand, process, or generate language. 
+
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
