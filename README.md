@@ -20,6 +20,8 @@ Basic exercises for GANs, NNs and others. These were the type of exercises done 
 
 ## python_exercises
 ## Linux basic CLI commands
+A Command Line Interface (CLI) is a text-based user interface used to interact with a computer system or software by typing commands. Unlike a Graphical User Interface (GUI), which uses visual elements like icons and menus, the CLI operates through a command shell program (such as Bash, Command Prompt, or PowerShell) that interprets and executes the user's text input.
+
 Here a list of basic commands for the terminal
 clear: cleans the terminal screen <br>
 man commandname: reference explanation of a command <br> 
