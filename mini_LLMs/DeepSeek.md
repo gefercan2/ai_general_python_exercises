@@ -3,7 +3,7 @@
 
 ---
 
-## 🧠 About This Guide
+## About This Guide
 
 This guide walks you through setting up and running **DeepSeek R1 Distill (1.5B)** locally on a machine with limited VRAM (2–4GB). We use the **1.5B distilled version**, which:
 
@@ -15,6 +15,8 @@ This guide walks you through setting up and running **DeepSeek R1 Distill (1.5B)
 We cover **two approaches**:
 1. ✅ **Terminal** — quick test via command line
 2. ✅ **Jupyter Notebook** — full interactive workflow with fine-tuning
+
+For the real life example see the ipynb file in this same folder.
 
 ---
 
