@@ -1,5 +1,5 @@
 # Building a Minimal GAN 
-### on Linux Mint with an NVIDIA GTX 850M
+##### on Linux Mint with an NVIDIA GTX 850M
 
 ### A Step-by-Step Walkthrough for Python 3.12 + Jupyter Notebook
 
