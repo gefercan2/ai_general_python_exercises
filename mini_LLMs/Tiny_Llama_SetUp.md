@@ -283,7 +283,7 @@ print(response)
 
 **What each step does:**
 - **Tokenize** — the model cannot read text directly. The tokenizer splits your sentence into tokens (roughly words or word-pieces) and converts them to integer IDs.
-- `return_tensors="pt"` — returns PyTorch tensors, the format the model expects.
+- `return_tensors="pt"` — returns PyTorch tensors, the format the model expects.In the context of Large Language Models (LLMs) and Artificial Intelligence (AI), a tokenizer is a foundational component that acts as the bridge between human language and mathematical computation. It breaks raw input text into smaller, manageable chunks called tokens and maps them to unique numerical IDs. Because neural networks can only process numbers, not text, the tokenizer is the necessary first step before an LLM can understand, process, or generate language.
 - **Generate** — the model predicts the next token repeatedly until it reaches `max_new_tokens` or a stop signal.
 - `temperature=0.7` — lower values (e.g. 0.2) make responses more predictable and factual; higher values (e.g. 0.9) make them more varied and creative.
 - **Decode** — converts the output token IDs back into human-readable text. `skip_special_tokens=True` removes formatting tags like `<|assistant|>`.
