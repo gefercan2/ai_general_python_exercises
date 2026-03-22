@@ -19,27 +19,27 @@ Basic exercises for GANs, NNs and others. These were the type of exercises done 
 
 ## python_exercises
 ## linux basic commands
-Hee a list of basic commands for the terminal
-clear: cleans the terminal screen
-man commandname: reference explanation of a command
-ps: show active processes
-uname: gives name of operative system
-pwd : to know where you are
-cd filename: to go to a directory
-cd .. : to go one levelback
-mkdir filename.extension: to create a folder
-rmdir filename.extemsion: to delete a folder
-touch filename.extension: to create a file
-mv filename.extension foldername : to move a file to a folder
-mv filename1.extension filename2.extension: change the name of a file 1 to file 2
-ls : to list the content of a folder
-cat filename: to show the content of a file
-nano filename: to write a file in text editor
-control + O + enter: to save a file while using nano
-control + X: to exit nano editor
-cp filename1.extension filename2.extension: copy the contents from file 1 to file 2
-curl websitename: gets html view?
-top: gets an overview of processes
+Here a list of basic commands for the terminal
+clear: cleans the terminal screen <br>
+man commandname: reference explanation of a command <br> 
+ps: show active processes <br>
+uname: gives name of operative system <br>
+pwd : to know where you are <br>
+cd filename: to go to a directory <br>
+cd .. : to go one levelback <br> 
+mkdir filename.extension: to create a folder <br>
+rmdir filename.extemsion: to delete a folder <br>
+touch filename.extension: to create a file <br>
+mv filename.extension foldername : to move a file to a folder <br>
+mv filename1.extension filename2.extension: change the name of a file 1 to file 2 <br>
+ls : to list the content of a folder <br>
+cat filename: to show the content of a file <br>
+nano filename: to write a file in text editor <br>
+control + O + enter: to save a file while using nano  <br>
+control + X: to exit nano editor <br>
+cp filename1.extension filename2.extension: copy the contents from file 1 to file 2 <br>
+curl websitename: gets html view? <br>
+top: gets an overview of processes <br>
 
 references can be found in:
 www.geeksforgeeks.org/linux-unix/basic-linux-commands/<br>
