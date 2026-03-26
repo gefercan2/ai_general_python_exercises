@@ -1,4 +1,4 @@
-# AI Learning Environment — Setup Guide
+# AI Virtual Environment — Setup Guide
 
 A step-by-step guide to setting up a well-organised Python virtual environment for AI work, with three clearly separated sections (General AI, LLM, and Docling) that all share common heavy libraries like PyTorch — avoiding redundancy.
 
