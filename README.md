@@ -28,25 +28,25 @@ https://hivemindacademy.org/courses/275de0fd-099e-455f-80b1-57f910a7fe61<br>
 
 
 Here a list of basic commands for the terminal
-clear: cleans the terminal screen <br>
-man commandname: reference explanation of a command <br> 
-ps: show active processes <br>
-uname: gives name of operative system <br>
-pwd : to know where you are <br>
-cd filename: to go to a directory <br>
-cd .. : to go one levelback <br> 
-mkdir filename.extension: to create a folder <br>
-rmdir filename.extemsion: to delete a folder <br>
-touch filename.extension: to create a file <br>
-mv filename.extension foldername : to move a file to a folder <br>
-mv filename1.extension filename2.extension: change the name of a file 1 to file 2 <br>
-ls : to list the content of a folder <br>
-cat filename: to show the content of a file <br>
-nano filename: to write a file in text editor <br>
-control + O + enter: to save a file while using nano  <br>
-control + X: to exit nano editor <br>
-cp filename1.extension filename2.extension: copy the contents from file 1 to file 2 <br>
-curl websitename: gets html view? <br>
-top: gets an overview of processes <br>
+-clear: cleans the terminal screen <br>
+-man commandname: reference explanation of a command <br> 
+-ps: show active processes <br>
+-uname: gives name of operative system <br>
+-pwd : to know where you are <br>
+-cd filename: to go to a directory <br>
+-cd .. : to go one levelback <br> 
+-mkdir filename.extension: to create a folder <br>
+-rmdir filename.extemsion: to delete a folder <br>
+-touch filename.extension: to create a file <br>
+-mv filename.extension foldername : to move a file to a folder <br>
+-mv filename1.extension filename2.extension: change the name of a file 1 to file 2 <br>
+-ls : to list the content of a folder <br>
+-cat filename: to show the content of a file <br>
+-nano filename: to write a file in text editor <br>
+-control + O + enter: to save a file while using nano  <br>
+-control + X: to exit nano editor <br>
+-cp filename1.extension filename2.extension: copy the contents from file 1 to file 2 <br>
+-curl websitename: gets html view? <br>
+-top: gets an overview of processes <br>
 
 
