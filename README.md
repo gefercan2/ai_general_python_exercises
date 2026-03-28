@@ -1,5 +1,5 @@
 # References for AI and Python
-References fro exercises t be copied/pasted/opened in Jupyter Notebooks,
+References for exercises t be copied/pasted/opened in Jupyter Notebooks,
 aditionally there is annotations for terminal installation and actions 
 ## ComfyUI
 ComfyUI is a powerful, open-source, node-based graphical user interface (GUI) for generative AI, primarily used to build, customize, and run Stable Diffusion and other models locally. It enables users to create complex image and video generation pipelines by connecting nodes (similar to a flowchart), offering high control, automation, and efficiency without requiring coding
