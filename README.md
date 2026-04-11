@@ -47,6 +47,11 @@ Here a list of basic commands for the terminal
 -control + X: to exit nano editor <br>
 -cp filename1.extension filename2.extension: copy the contents from file 1 to file 2 <br>
 -curl websitename: gets html view? <br>
--top: gets an overview of processes <br>
+-top: gets an overview of processes <br><br>
+
+Other:<br>
+https://github.com/safishamsi/graphify <br>
+https://github.com/microsoft/markitdown?s=08  alterantive to docling <br>
+https://github.com/mccoyspace/autocritic <br> "image critic"
 
 
