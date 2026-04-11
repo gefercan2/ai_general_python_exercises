@@ -1,8 +1,8 @@
 # References for AI and Python
 References for exercises t be copied/pasted/opened in Jupyter Notebooks,
 aditionally there is annotations for terminal installation and actions <br>
-Course for general concepts <br>
-https://themodernsoftware.dev/ <br><br>
+https://themodernsoftware.dev/ Course for general concepts <br>
+https://www.stavros.io/tutorials/python/ python tutorial <br>
 
 ## ComfyUI
 ComfyUI is a powerful, open-source, node-based graphical user interface (GUI) for generative AI, primarily used to build, customize, and run Stable Diffusion and other models locally. It enables users to create complex image and video generation pipelines by connecting nodes (similar to a flowchart), offering high control, automation, and efficiency without requiring coding
@@ -28,7 +28,7 @@ Some references can be found in:<br>
 www.geeksforgeeks.org/linux-unix/basic-linux-commands/ <br>
 www.linuxcommand.org/lc3_lts0010.php <br>
 https://hivemindacademy.org/courses/275de0fd-099e-455f-80b1-57f910a7fe61<br>
-https://www.stavros.io/tutorials/python/ python tutorial <br>
+
 
 
 Here a list of basic commands for the terminal
