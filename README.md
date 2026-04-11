@@ -25,6 +25,7 @@ Some references can be found in:<br>
 www.geeksforgeeks.org/linux-unix/basic-linux-commands/ <br>
 www.linuxcommand.org/lc3_lts0010.php <br>
 https://hivemindacademy.org/courses/275de0fd-099e-455f-80b1-57f910a7fe61<br>
+https://www.stavros.io/tutorials/python/ python tutorial <br>
 
 
 Here a list of basic commands for the terminal
