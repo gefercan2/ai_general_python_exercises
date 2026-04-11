@@ -1,7 +1,7 @@
 # References for AI and Python
 References for exercises t be copied/pasted/opened in Jupyter Notebooks,
 aditionally there is annotations for terminal installation and actions <br>
-Course for general concepts
+Course for general concepts <br>
 https://themodernsoftware.dev/ <br><br>
 
 ## ComfyUI
