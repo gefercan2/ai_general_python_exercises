@@ -1,6 +1,6 @@
 # References for AI and Python
 References for exercises t be copied/pasted/opened in Jupyter Notebooks,
-aditionally there is annotations for terminal installation and actions
+aditionally there is annotations for terminal installation and actions <br>
 Course for general concepts
 https://themodernsoftware.dev/ <br><br>
 
