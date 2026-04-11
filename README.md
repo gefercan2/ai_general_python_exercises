@@ -50,7 +50,7 @@ Here a list of basic commands for the terminal
 -top: gets an overview of processes <br><br>
 
 Other:<br>
-https://github.com/safishamsi/graphify <br> implementation of Karphaty's LLM
+https://github.com/safishamsi/graphify  implementation of Karphaty's LLM <br>
 https://github.com/docling-project/docling convert pdfs to md <br>
 https://github.com/microsoft/markitdown?s=08  alterantive to docling <br>
 https://github.com/mccoyspace/autocritic <br> "image critic"
