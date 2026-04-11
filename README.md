@@ -51,6 +51,7 @@ Here a list of basic commands for the terminal
 
 Other:<br>
 https://github.com/safishamsi/graphify <br>
+https://github.com/docling-project/docling convert pdfs to md <br>
 https://github.com/microsoft/markitdown?s=08  alterantive to docling <br>
 https://github.com/mccoyspace/autocritic <br> "image critic"
 
