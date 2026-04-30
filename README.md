@@ -62,6 +62,7 @@ https://github.com/ArtemXTech/personal-os-skills?tab=readme-ov-file mcp/skills f
 https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview <br>
 https://github.com/chenglou/pretext?s=08 layout library using Claude Code <br>
 https://kivy.org/doc/stable/gettingstarted/intro.html framework for development of apps using python <br>
+https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices <br>
 https://platform.claude.com/docs/en/test-and-evaluate/develop-tests<br>
 https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices <br>
 
