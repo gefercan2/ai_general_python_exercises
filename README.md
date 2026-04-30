@@ -58,7 +58,8 @@ https://github.com/safishamsi/graphify  implementation of Karphaty's LLM <br>
 https://github.com/docling-project/docling convert pdfs to md <br>
 https://github.com/microsoft/markitdown?s=08  alterantive to docling <br>
 https://github.com/mccoyspace/autocritic and https://github.com/mccoyspace/rewriteDrawer?s=08  <br> "image critic"
-https://github.com/ArtemXTech/personal-os-skills?tab=readme-ov-file mcp/skills from Calude set up <br>
+https://github.com/ArtemXTech/personal-os-skills?tab=readme-ov-file mcp/skills from Claude set up <br>
+https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview <br>
 https://github.com/chenglou/pretext?s=08 layout library using Claude Code <br>
 https://kivy.org/doc/stable/gettingstarted/intro.html framework for development of apps using python <br>
 
