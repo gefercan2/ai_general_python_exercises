@@ -1,5 +1,8 @@
 # Unified Local AI System
 
+You need to launch it from terminal
+via port 8888
+the models are slow but is mainly for learning purposes
 A fully local AI-powered document analysis and Q&A system that runs entirely on your machine. No cloud, no API keys, no data leaving your computer.
 
 ## Features
