@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__PAGE_TITLE__</title>
+<script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+<style>
+  :root {
+    --bg: #161a24;
+    --panel-bg: #1f2430;
+    --panel-border: #2a3040;
+    --text: #e4e7ee;
+    --text-muted: #8b93a7;
+    --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: var(--font-sans); height: 100%; overflow: hidden;
+  }
+  #app { display: flex; flex-direction: column; height: 100vh; }
+  header {
+    padding: 14px 20px; border-bottom: 1px solid var(--panel-border);
+    display: flex; align-items: baseline; gap: 12px; flex-shrink: 0;
+  }
+  header h1 {
+    font-family: var(--font-mono); font-size: 15px; font-weight: 600;
+    letter-spacing: 0.02em; margin: 0; text-transform: uppercase;
+  }
+  header .subtitle { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+  header .header-btn {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text); text-decoration: none;
+    background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 4px;
+    padding: 5px 10px; cursor: pointer;
+  }
+  header .header-btn:hover { background: #262c3a; }
+  #chart-container { position: relative; flex: 1; min-height: 0; }
+  svg { display: block; width: 100%; height: 100%; }
+
+  #full-text-modal {
+    position: absolute; inset: 0; background: rgba(10,12,17,0.85); display: none;
+    align-items: center; justify-content: center; z-index: 100;
+  }
+  #full-text-modal.open { display: flex; }
+  #full-text-panel {
+    width: min(720px, 90%); max-height: 80%; background: var(--panel-bg);
+    border: 1px solid var(--panel-border); border-radius: 8px; display: flex; flex-direction: column;
+  }
+  #full-text-header {
+    display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
+    border-bottom: 1px solid var(--panel-border); font-family: var(--font-mono); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);
+  }
+  #full-text-header button { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; }
+  #full-text-header button:hover { color: var(--text); }
+  #full-text-body { padding: 16px 20px; overflow-y: auto; font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
+
+  #legend {
+    position: absolute; top: 14px; left: 14px; background: var(--panel-bg);
+    border: 1px solid var(--panel-border); border-radius: 6px; padding: 10px 12px;
+    font-family: var(--font-mono); font-size: 11px; z-index: 5;
+  }
+  #legend .legend-title { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; font-size: 10px; }
+  #legend .legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+  #legend .swatch { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+  #zoom-controls { position: absolute; top: 14px; right: 14px; display: flex; flex-direction: column; gap: 4px; z-index: 5; }
+  #zoom-controls button {
+    width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--panel-border);
+    background: var(--panel-bg); color: var(--text); font-family: var(--font-mono);
+    font-size: 14px; cursor: pointer; line-height: 1;
+  }
+  #zoom-controls button:hover { background: #262c3a; }
+
+  #tooltip {
+    position: fixed; display: none; max-width: 280px; background: var(--panel-bg);
+    border: 1px solid var(--panel-border); border-radius: 6px; padding: 10px 12px;
+    font-size: 12px; line-height: 1.5; pointer-events: none; z-index: 50;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  #tooltip .t-title { font-family: var(--font-mono); font-weight: 600; margin-bottom: 4px; }
+  #tooltip .t-meta { color: var(--text-muted); font-family: var(--font-mono); font-size: 10.5px; }
+
+  #reader-panel {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    width: min(640px, 92%); max-height: 42%; background: var(--panel-bg);
+    border: 1px solid var(--panel-border); border-radius: 8px; display: none;
+    flex-direction: column; z-index: 20; box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  }
+  #reader-panel.open { display: flex; }
+  #reader-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--panel-border);
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  #reader-header button {
+    background: none; border: none; color: var(--text-muted); cursor: pointer;
+    font-size: 14px; padding: 2px 6px;
+  }
+  #reader-header button:hover { color: var(--text); }
+  #reader-body { padding: 14px; overflow-y: auto; font-size: 13.5px; line-height: 1.7; }
+  #reader-body em.hl { background: #d9a44144; color: #f0c876; font-style: normal; padding: 0 2px; border-radius: 2px; }
+  #reader-footer { display: flex; justify-content: space-between; padding: 8px 14px; border-top: 1px solid var(--panel-border); }
+  #reader-footer button {
+    background: var(--bg); border: 1px solid var(--panel-border); color: var(--text);
+    border-radius: 4px; padding: 5px 12px; font-family: var(--font-mono); font-size: 11px; cursor: pointer;
+  }
+  #reader-footer button:hover { background: #262c3a; }
+  #reader-footer button:disabled { opacity: 0.35; cursor: default; }
+
+  .faded { opacity: 0.08; }
+  .topic-bubble { cursor: pointer; stroke: #0e1017; stroke-width: 1px; }
+  .topic-label { font-family: var(--font-mono); font-size: 9px; fill: var(--bg); pointer-events: none; text-anchor: middle; }
+  .cloud-word { font-family: var(--font-mono); fill: var(--text-muted); cursor: pointer; }
+  .para-arc { cursor: pointer; stroke: var(--bg); stroke-width: 1px; }
+  .word-dot { cursor: pointer; stroke: #0e1017; stroke-width: 0.5px; }
+  .citation-mark { cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>__PAGE_TITLE__</h1>
+    <span class="subtitle">document structure · click a ring element to read</span>
+    <span style="flex:1"></span>
+    <button id="read-full-btn" style="display:none;" class="header-btn">Read full document</button>
+    <a id="back-link" href="#" style="display:none;" class="header-btn">&larr; Back to network</a>
+  </header>
+  <div id="chart-container">
+    <div id="legend"></div>
+    <div id="zoom-controls">
+      <button id="zoom-in" title="Zoom in">+</button>
+      <button id="zoom-out" title="Zoom out">&minus;</button>
+      <button id="zoom-reset" title="Reset zoom">&#8634;</button>
+    </div>
+    <svg id="main-svg"></svg>
+    <div id="reader-panel">
+      <div id="reader-header">
+        <span id="reader-title">Paragraph</span>
+        <button id="reader-close" title="Close">&times;</button>
+      </div>
+      <div id="reader-body"></div>
+      <div id="reader-footer">
+        <button id="reader-prev">&larr; Prev</button>
+        <button id="reader-next">Next &rarr;</button>
+      </div>
+    </div>
+  </div>
+  <div id="tooltip"></div>
+  <div id="full-text-modal">
+    <div id="full-text-panel">
+      <div id="full-text-header">
+        <span>Full document text</span>
+        <button id="full-text-close" title="Close">&times;</button>
+      </div>
+      <div id="full-text-body"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   DATA + CONFIG (injected by scripts/generate_radial_viz.py — edit the
+   source structure.json / config.json and regenerate, don't hand-edit these)
+   ========================================================================= */
+const DATA = /*__STRUCTURE_JSON__*/{"paragraphs":[],"topics":[],"word_track":[],"word_cloud":[],"citations":[],"stats":{}}/*__END_STRUCTURE_JSON__*/;
+const CONFIG = /*__VIZ_CONFIG_JSON__*/{}/*__END_VIZ_CONFIG_JSON__*/;
+
+/* =========================================================================
+   1. STATE
+   ========================================================================= */
+let highlightedTerm = null;   // topic term currently highlighted (from C1/C3 click)
+let readerParaIndex = null;   // paragraph currently open in the reader panel
+let readerHighlightWord = null;
+
+/* =========================================================================
+   2. LAYOUT / DIMENSIONS
+   ========================================================================= */
+const container = document.getElementById("chart-container");
+const svg = d3.select("#main-svg");
+const R = CONFIG.radii;
+
+function dims() {
+  const w = container.clientWidth, h = container.clientHeight;
+  return { w, h, cx: w / 2, cy: h / 2 };
+}
+
+const zoomLayer = svg.append("g").attr("class", "zoom-layer");
+const clickCatcher = svg.insert("rect", ":first-child")
+  .attr("fill", "transparent")
+  .on("click", () => { setHighlight(null); });
+
+const ringsGroup = zoomLayer.append("g").attr("class", "rings");
+const c1Group = ringsGroup.append("g").attr("class", "c1-topics");
+const cloudGroup = ringsGroup.append("g").attr("class", "word-cloud");
+const c2Group = ringsGroup.append("g").attr("class", "c2-paragraphs");
+const c3Group = ringsGroup.append("g").attr("class", "c3-word-track");
+const c4Group = ringsGroup.append("g").attr("class", "c4-citations");
+
+/* =========================================================================
+   3. TOOLTIP
+   ========================================================================= */
+const tooltip = d3.select("#tooltip");
+function showTooltip(event, html) {
+  tooltip.html(html).style("display", "block");
+  positionTooltip(event);
+}
+function positionTooltip(event) {
+  const pad = 14;
+  let x = event.clientX + pad, y = event.clientY + pad;
+  if (x + 280 > window.innerWidth) x = event.clientX - 280 - pad;
+  if (y + 120 > window.innerHeight) y = event.clientY - 120 - pad;
+  tooltip.style("left", x + "px").style("top", y + "px");
+}
+function hideTooltip() { tooltip.style("display", "none"); }
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, s => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[s]));
+}
+
+/* =========================================================================
+   4. PARAGRAPH ANGLE LAYOUT (shared by C2, C3, C4)
+   ========================================================================= */
+const pie = d3.pie()
+  .value(d => Math.max(d.word_count, 1))
+  .padAngle(d => 0.004)
+  .sort(null);
+
+function paragraphArcs() {
+  // Extra pad before headings for a visible section break
+  const arcs = pie(DATA.paragraphs);
+  arcs.forEach((a, i) => {
+    if (DATA.paragraphs[i].is_heading && i > 0) a.padAngleBefore = 0.05;
+  });
+  return arcs;
+}
+
+let paraAngleById = {}; // paragraph_index -> {start, end, mid}
+
+/* =========================================================================
+   5. C1 — TOPIC BUBBLES (pack layout)
+   ========================================================================= */
+function renderTopics(cx, cy) {
+  c1Group.attr("transform", `translate(${cx},${cy})`).selectAll("*").remove();
+  if (!DATA.topics.length) return;
+
+  const root = d3.hierarchy({ children: DATA.topics }).sum(d => d.count || 1);
+  d3.pack().size([R.r1 * 1.8, R.r1 * 1.8]).padding(3)(root);
+
+  const nodes = c1Group.selectAll("g.topic-node")
+    .data(root.leaves())
+    .enter().append("g")
+    .attr("class", "topic-node")
+    .attr("transform", d => `translate(${d.x - R.r1 * 0.9},${d.y - R.r1 * 0.9})`);
+
+  nodes.append("circle")
+    .attr("class", "topic-bubble")
+    .attr("r", d => d.r)
+    .attr("fill", CONFIG.colors.topic)
+    .on("mouseenter", (event, d) => showTooltip(event,
+      `<div class="t-title">${escapeHtml(d.data.term)}</div>` +
+      `<div class="t-meta">${d.data.count} occurrences</div>` +
+      `<div class="t-meta">related: ${escapeHtml((d.data.related || []).join(", "))}</div>`))
+    .on("mousemove", positionTooltip)
+    .on("mouseleave", hideTooltip)
+    .on("click", (event, d) => {
+      event.stopPropagation();
+      setHighlight(d.data.term);
+      openReaderForTerm(d.data.term);
+    });
+
+  nodes.filter(d => d.r > 14).append("text")
+    .attr("class", "topic-label")
+    .attr("dy", "0.3em")
+    .text(d => d.data.term.length > 10 ? d.data.term.slice(0, 9) + "…" : d.data.term);
+}
+
+/* =========================================================================
+   6. WORD CLOUD BELT (between C1 and C2)
+   ========================================================================= */
+function renderWordCloud(cx, cy) {
+  cloudGroup.attr("transform", `translate(${cx},${cy})`).selectAll("*").remove();
+  if (!DATA.word_cloud.length) return;
+
+  const words = DATA.word_cloud;
+  const sizeScale = d3.scaleSqrt()
+    .domain([1, d3.max(words, d => d.count) || 1])
+    .range([8, 15]);
+  const laneRadii = [R.r1 + 12, R.r1 + 24, R.r1 + 36];
+  const angleStep = (2 * Math.PI) / words.length;
+
+  cloudGroup.selectAll("text.cloud-word")
+    .data(words)
+    .enter().append("text")
+    .attr("class", "cloud-word")
+    .attr("font-size", d => sizeScale(d.count))
+    .attr("transform", (d, i) => {
+      const angle = i * angleStep - Math.PI / 2;
+      const radius = laneRadii[i % laneRadii.length];
+      const x = Math.cos(angle) * radius, y = Math.sin(angle) * radius;
+      const rotDeg = (angle * 180 / Math.PI) + 90;
+      return `translate(${x},${y}) rotate(${rotDeg})`;
+    })
+    .attr("text-anchor", "middle")
+    .text(d => d.term)
+    .on("mouseenter", (event, d) => showTooltip(event,
+      `<div class="t-title">${escapeHtml(d.term)}</div><div class="t-meta">${d.count} occurrences</div>`))
+    .on("mousemove", positionTooltip)
+    .on("mouseleave", hideTooltip);
+}
+
+/* =========================================================================
+   7. C2 — PARAGRAPH DONUT
+   ========================================================================= */
+function renderParagraphs(cx, cy) {
+  c2Group.attr("transform", `translate(${cx},${cy})`).selectAll("*").remove();
+  if (!DATA.paragraphs.length) return;
+
+  const arcs = pie(DATA.paragraphs);
+  paraAngleById = {};
+  arcs.forEach(a => {
+    paraAngleById[a.data.index] = { start: a.startAngle, end: a.endAngle, mid: (a.startAngle + a.endAngle) / 2 };
+  });
+
+  const arcGen = d3.arc().innerRadius(R.r2).outerRadius(R.r3);
+
+  c2Group.selectAll("path.para-arc")
+    .data(arcs)
+    .enter().append("path")
+    .attr("class", "para-arc")
+    .attr("d", arcGen)
+    .attr("fill", d => d.data.is_heading ? CONFIG.colors.heading : CONFIG.colors.paragraph)
+    .attr("fill-opacity", d => d.data.is_heading ? 0.9 : 0.55)
+    .on("mouseenter", (event, d) => showTooltip(event,
+      `<div class="t-title">Paragraph ${d.data.index}${d.data.is_heading ? " (heading)" : ""}</div>` +
+      `<div class="t-meta">${d.data.text.split(" ").slice(0, 10).join(" ")}...</div>`))
+    .on("mousemove", positionTooltip)
+    .on("mouseleave", hideTooltip)
+    .on("click", (event, d) => {
+      event.stopPropagation();
+      openReaderForParagraph(d.data.index, null);
+    });
+}
+
+/* =========================================================================
+   8. C3 — WORD OCCURRENCE TRACK
+   ========================================================================= */
+function renderWordTrack(cx, cy) {
+  c3Group.attr("transform", `translate(${cx},${cy})`).selectAll("*").remove();
+  if (!DATA.word_track.length) return;
+
+  // group occurrences by paragraph to spread them across that paragraph's angle span
+  const byPara = {};
+  DATA.word_track.forEach(occ => {
+    (byPara[occ.paragraph_index] = byPara[occ.paragraph_index] || []).push(occ);
+  });
+
+  const points = [];
+  Object.keys(byPara).forEach(paraIdxStr => {
+    const paraIdx = +paraIdxStr;
+    const angleInfo = paraAngleById[paraIdx];
+    if (!angleInfo) return;
+    const occs = byPara[paraIdx];
+    occs.forEach((occ, i) => {
+      const frac = occs.length > 1 ? (i + 0.5) / occs.length : 0.5;
+      const angle = angleInfo.start + frac * (angleInfo.end - angleInfo.start);
+      const radiusJitter = R.r3 + 8 + (i % 3) * 10;
+      points.push({ ...occ, angle, radius: radiusJitter });
+    });
+  });
+
+  const termColor = CONFIG.colors.word;
+
+  c3Group.selectAll("circle.word-dot")
+    .data(points)
+    .enter().append("circle")
+    .attr("class", "word-dot")
+    .attr("cx", d => Math.cos(d.angle - Math.PI / 2) * d.radius)
+    .attr("cy", d => Math.sin(d.angle - Math.PI / 2) * d.radius)
+    .attr("r", 3.5)
+    .attr("fill", termColor)
+    .attr("data-term", d => d.word)
+    .on("mouseenter", (event, d) => showTooltip(event,
+      `<div class="t-title">${escapeHtml(d.word)}</div>` +
+      `<div class="t-meta">paragraph ${d.paragraph_index}</div>` +
+      `<div class="t-meta">near: ${escapeHtml(d.colocates.join(", "))}</div>`))
+    .on("mousemove", positionTooltip)
+    .on("mouseleave", hideTooltip)
+    .on("click", (event, d) => {
+      event.stopPropagation();
+      setHighlight(d.word);
+      openReaderForParagraph(d.paragraph_index, d.word);
+    });
+}
+
+/* =========================================================================
+   9. C4 — CITATION RING (optional)
+   ========================================================================= */
+function renderCitations(cx, cy) {
+  c4Group.attr("transform", `translate(${cx},${cy})`).selectAll("*").remove();
+  if (!DATA.citations.length) return;
+
+  c4Group.selectAll("circle.citation-mark")
+    .data(DATA.citations)
+    .enter().append("circle")
+    .attr("class", "citation-mark")
+    .attr("cx", d => {
+      const a = paraAngleById[d.paragraph_index];
+      return a ? Math.cos(a.mid - Math.PI / 2) * R.r4 : 0;
+    })
+    .attr("cy", d => {
+      const a = paraAngleById[d.paragraph_index];
+      return a ? Math.sin(a.mid - Math.PI / 2) * R.r4 : 0;
+    })
+    .attr("r", 4)
+    .attr("fill", CONFIG.colors.citation)
+    .on("mouseenter", (event, d) => showTooltip(event,
+      `<div class="t-title">Citation</div><div class="t-meta">${escapeHtml(d.text)}</div>`))
+    .on("mousemove", positionTooltip)
+    .on("mouseleave", hideTooltip)
+    .on("click", (event, d) => {
+      event.stopPropagation();
+      openReaderForParagraph(d.paragraph_index, null);
+    });
+}
+
+/* =========================================================================
+   10. LEGEND
+   ========================================================================= */
+function renderLegend() {
+  const legend = d3.select("#legend");
+  legend.append("div").attr("class", "legend-title").text("Rings (center \u2192 out)");
+  const items = [
+    ["Topics", CONFIG.colors.topic],
+    ["Paragraphs", CONFIG.colors.paragraph],
+    ["Headings", CONFIG.colors.heading],
+    ["Word occurrences", CONFIG.colors.word],
+  ];
+  if (DATA.citations.length) items.push(["Citations", CONFIG.colors.citation]);
+  const rows = legend.selectAll(".legend-row").data(items).enter().append("div").attr("class", "legend-row");
+  rows.append("div").attr("class", "swatch").style("background", d => d[1]);
+  rows.append("span").text(d => d[0]);
+}
+
+/* =========================================================================
+   11. HIGHLIGHT / SELECTION
+   ========================================================================= */
+function setHighlight(term) {
+  highlightedTerm = (highlightedTerm === term) ? null : term;
+  applyHighlight();
+}
+
+function applyHighlight() {
+  if (!highlightedTerm) {
+    c1Group.selectAll(".topic-bubble").classed("faded", false);
+    c3Group.selectAll(".word-dot").classed("faded", false);
+    return;
+  }
+  c1Group.selectAll(".topic-bubble").classed("faded", d => d.data.term !== highlightedTerm);
+  c3Group.selectAll(".word-dot").classed("faded", function () {
+    return d3.select(this).attr("data-term") !== highlightedTerm;
+  });
+}
+
+/* =========================================================================
+   12. CONTEXT READER PANEL
+   ========================================================================= */
+const readerPanel = document.getElementById("reader-panel");
+const readerBody = document.getElementById("reader-body");
+const readerTitle = document.getElementById("reader-title");
+const readerPrevBtn = document.getElementById("reader-prev");
+const readerNextBtn = document.getElementById("reader-next");
+
+function openReaderForParagraph(paraIndex, highlightWord) {
+  readerParaIndex = paraIndex;
+  readerHighlightWord = highlightWord;
+  renderReader();
+  readerPanel.classList.add("open");
+}
+
+function openReaderForTerm(term) {
+  const firstOcc = DATA.word_track.find(o => o.word === term);
+  if (firstOcc) openReaderForParagraph(firstOcc.paragraph_index, term);
+}
+
+function renderReader() {
+  const para = DATA.paragraphs.find(p => p.index === readerParaIndex);
+  if (!para) { readerPanel.classList.remove("open"); return; }
+  readerTitle.textContent = `Paragraph ${para.index}${para.is_heading ? " \u00b7 heading" : ""}`;
+  let text = escapeHtml(para.text);
+  if (readerHighlightWord) {
+    const re = new RegExp(`\\b(${escapeRegex(readerHighlightWord)})\\b`, "ig");
+    text = text.replace(re, "<em class=\"hl\">$1</em>");
+  }
+  readerBody.innerHTML = text;
+  readerPrevBtn.disabled = readerParaIndex <= 0;
+  readerNextBtn.disabled = readerParaIndex >= DATA.paragraphs.length - 1;
+}
+
+function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+document.getElementById("reader-close").addEventListener("click", () => {
+  readerPanel.classList.remove("open");
+});
+readerPrevBtn.addEventListener("click", () => {
+  if (readerParaIndex > 0) { readerParaIndex -= 1; renderReader(); }
+});
+readerNextBtn.addEventListener("click", () => {
+  if (readerParaIndex < DATA.paragraphs.length - 1) { readerParaIndex += 1; renderReader(); }
+});
+
+/* =========================================================================
+   13. ZOOM / PAN
+   ========================================================================= */
+const zoomBehavior = d3.zoom()
+  .scaleExtent([0.3, 5])
+  .on("zoom", (event) => zoomLayer.attr("transform", event.transform));
+svg.call(zoomBehavior);
+d3.select("#zoom-in").on("click", () => svg.transition().call(zoomBehavior.scaleBy, 1.3));
+d3.select("#zoom-out").on("click", () => svg.transition().call(zoomBehavior.scaleBy, 1 / 1.3));
+d3.select("#zoom-reset").on("click", () => svg.transition().call(zoomBehavior.transform, d3.zoomIdentity));
+
+/* =========================================================================
+   14. RENDER + RESIZE
+   ========================================================================= */
+function renderAll() {
+  const { w, h, cx, cy } = dims();
+  clickCatcher.attr("width", w).attr("height", h);
+  ringsGroup.attr("transform", `translate(${cx},${cy})`);
+  renderParagraphs(0, 0);   // computes paraAngleById — must run before C3/C4
+  renderTopics(0, 0);
+  renderWordCloud(0, 0);
+  renderWordTrack(0, 0);
+  renderCitations(0, 0);
+  applyHighlight();
+}
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+window.addEventListener("resize", debounce(renderAll, 200));
+
+/* =========================================================================
+   16. BACK LINK + FULL TEXT MODAL
+   ========================================================================= */
+function setupHeaderControls() {
+  const backLink = document.getElementById("back-link");
+  if (CONFIG.back_url) {
+    backLink.href = CONFIG.back_url;
+    backLink.style.display = "inline-block";
+  }
+
+  const readBtn = document.getElementById("read-full-btn");
+  const modal = document.getElementById("full-text-modal");
+  const modalBody = document.getElementById("full-text-body");
+  if (DATA.full_text) {
+    readBtn.style.display = "inline-block";
+    readBtn.addEventListener("click", () => {
+      modalBody.textContent = DATA.full_text;
+      modal.classList.add("open");
+    });
+    document.getElementById("full-text-close").addEventListener("click", () => {
+      modal.classList.remove("open");
+    });
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) modal.classList.remove("open");
+    });
+  }
+}
+
+/* =========================================================================
+   17. INIT
+   ========================================================================= */
+renderLegend();
+renderAll();
+setupHeaderControls();
+</script>
+</body>
+</html>
