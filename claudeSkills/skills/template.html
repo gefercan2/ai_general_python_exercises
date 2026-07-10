@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__PAGE_TITLE__</title>
+<script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+<style>
+  :root {
+    --bg: #161a24;
+    --panel-bg: #1f2430;
+    --panel-border: #2a3040;
+    --text: #e4e7ee;
+    --text-muted: #8b93a7;
+    --grid-line: #2a3040;
+    --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--panel-border);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  header .subtitle {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  #network-container {
+    position: relative;
+    flex: 1 1 65%;
+    min-height: 0;
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  #timeline-container {
+    position: relative;
+    flex: 1 1 35%;
+    min-height: 160px;
+  }
+
+  #app.no-timeline #timeline-container { display: none; }
+  #app.no-timeline #network-container { flex: 1 1 100%; border-bottom: none; }
+
+  svg { display: block; width: 100%; height: 100%; }
+
+  /* ---- Legend ---- */
+  #legend {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    z-index: 5;
+  }
+  #legend .legend-title {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    font-size: 10px;
+  }
+  #legend .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+  }
+  #legend .swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ---- Zoom controls ---- */
+  #zoom-controls {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 5;
+  }
+  #zoom-controls button {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel-bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  #zoom-controls button:hover { background: #262c3a; }
+
+  /* ---- Tooltip ---- */
+  #tooltip {
+    position: fixed;
+    display: none;
+    max-width: 280px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    pointer-events: auto;
+    z-index: 50;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  #tooltip .t-title {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+  #tooltip .t-meta {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  #tooltip .t-excerpt {
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  #tooltip a {
+    color: #7fc7ff;
+    font-size: 11px;
+    text-decoration: none;
+  }
+  #tooltip a:hover { text-decoration: underline; }
+
+  /* ---- Network elements ---- */
+  .link { stroke: #3a4258; stroke-opacity: 0.6; }
+  .node circle { cursor: pointer; stroke: #0e1017; stroke-width: 1.5px; }
+  .node text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--text-muted);
+    pointer-events: none;
+  }
+  .faded { opacity: 0.12; }
+
+  /* ---- Timeline elements ---- */
+  .tick-line { stroke: var(--grid-line); stroke-width: 1; }
+  .tick-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--text-muted);
+  }
+  .timeline-arc { fill: none; stroke-width: 2px; cursor: pointer; }
+  .timeline-marker { cursor: pointer; stroke: #0e1017; stroke-width: 1px; }
+  .timeline-label {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    fill: var(--text-muted);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>__PAGE_TITLE__</h1>
+    <span class="subtitle">network + timeline · click a node to highlight</span>
+  </header>
+
+  <div id="network-container">
+    <div id="legend"></div>
+    <div id="zoom-controls">
+      <button id="zoom-in" title="Zoom in">+</button>
+      <button id="zoom-out" title="Zoom out">&minus;</button>
+      <button id="zoom-reset" title="Reset zoom">&#8634;</button>
+    </div>
+    <svg id="network-svg"></svg>
+  </div>
+
+  <div id="timeline-container">
+    <svg id="timeline-svg"></svg>
+  </div>
+
+  <div id="tooltip"></div>
+</div>
+
+<script>
+/* =========================================================================
+   DATA + CONFIG (injected by scripts/generate_viz.py — do not hand-edit
+   these two lines; edit the source graph_data.json / config.json instead
+   and regenerate)
+   ========================================================================= */
+const GRAPH_DATA = /*__GRAPH_DATA_JSON__*/{"nodes":[],"links":[],"timeline":[]}/*__END_GRAPH_DATA_JSON__*/;
+const CONFIG = /*__VIZ_CONFIG_JSON__*/{}/*__END_VIZ_CONFIG_JSON__*/;
+
+/* =========================================================================
+   1. STATE
+   ========================================================================= */
+let selectedId = null; // currently selected node id (shared between both charts)
+
+/* =========================================================================
+   2. COLOR + SCALE HELPERS
+   ========================================================================= */
+function colorForType(type) {
+  return CONFIG.colors[type] || CONFIG.colors.default;
+}
+
+function nodeSizeAccessor(d) {
+  return d.word_count && d.word_count > 0 ? d.word_count : (d.citation_count || 1);
+}
+
+/* =========================================================================
+   3. LEGEND
+   ========================================================================= */
+function renderLegend() {
+  const types = Array.from(new Set(GRAPH_DATA.nodes.map(n => n.type))).sort();
+  const legend = d3.select("#legend");
+  legend.append("div").attr("class", "legend-title").text("Node type");
+  const rows = legend.selectAll(".legend-row").data(types).enter()
+    .append("div").attr("class", "legend-row");
+  rows.append("div").attr("class", "swatch")
+    .style("background", d => colorForType(d));
+  rows.append("span").text(d => d);
+}
+
+/* =========================================================================
+   4. TOOLTIP
+   ========================================================================= */
+const tooltip = d3.select("#tooltip");
+let tooltipPinned = false;
+
+function showTooltip(event, d) {
+  const keywords = (d.top_keywords || []).join(", ");
+  let html = `<div class="t-title">${escapeHtml(d.label)}</div>`;
+  html += `<div class="t-meta">${escapeHtml(d.type || "")}${d.word_count ? " · " + d.word_count + " words" : ""}</div>`;
+  if (d.excerpt) html += `<div class="t-excerpt">${escapeHtml(d.excerpt)}</div>`;
+  if (keywords) html += `<div class="t-meta">keywords: ${escapeHtml(keywords)}</div>`;
+  if (d.detail_url) html += `<a href="${escapeAttr(d.detail_url)}">Open document view &#8594;</a><br/>`;
+  if (d.url) html += `<a href="${escapeAttr(d.url)}" target="_blank" rel="noopener noreferrer">Open link &#8599;</a>`;
+  tooltip.html(html);
+  positionTooltip(event);
+  tooltip.style("display", "block");
+}
+
+function positionTooltip(event) {
+  const pad = 14;
+  let x = event.clientX + pad;
+  let y = event.clientY + pad;
+  if (x + 280 > window.innerWidth) x = event.clientX - 280 - pad;
+  if (y + 140 > window.innerHeight) y = event.clientY - 140 - pad;
+  tooltip.style("left", x + "px").style("top", y + "px");
+}
+
+function hideTooltip() {
+  if (!tooltipPinned) tooltip.style("display", "none");
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, s => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[s]));
+}
+function escapeAttr(str) { return escapeHtml(str); }
+
+// Click anywhere outside a node/tooltip clears the pin
+d3.select("body").on("click", (event) => {
+  const isNode = event.target.closest(".node, .timeline-marker, #tooltip");
+  if (!isNode) {
+    tooltipPinned = false;
+    hideTooltip();
+  }
+});
+
+/* =========================================================================
+   5. SELECTION (shared between network + timeline)
+   ========================================================================= */
+function selectNode(id) {
+  selectedId = (selectedId === id) ? null : id;
+  updateNetworkHighlight();
+  updateTimelineHighlight();
+}
+
+function neighborsOf(id) {
+  const set = new Set([id]);
+  GRAPH_DATA.links.forEach(l => {
+    const s = typeof l.source === "object" ? l.source.id : l.source;
+    const t = typeof l.target === "object" ? l.target.id : l.target;
+    if (s === id) set.add(t);
+    if (t === id) set.add(s);
+  });
+  return set;
+}
+
+/* =========================================================================
+   6. NETWORK GRAPH
+   ========================================================================= */
+const networkContainer = document.getElementById("network-container");
+const networkSvg = d3.select("#network-svg");
+let networkWidth = networkContainer.clientWidth;
+let networkHeight = networkContainer.clientHeight;
+
+const zoomLayer = networkSvg.append("g").attr("class", "zoom-layer");
+const linkLayer = zoomLayer.append("g").attr("class", "link-layer");
+const nodeLayer = zoomLayer.append("g").attr("class", "node-layer");
+
+const sizeScale = d3.scaleSqrt()
+  .domain(d3.extent(GRAPH_DATA.nodes, nodeSizeAccessor))
+  .range([CONFIG.network.nodeRadiusMin, CONFIG.network.nodeRadiusMax])
+  .clamp(true);
+
+const simulation = d3.forceSimulation(GRAPH_DATA.nodes)
+  .force("link", d3.forceLink(GRAPH_DATA.links).id(d => d.id).distance(CONFIG.network.linkDistance))
+  .force("charge", d3.forceManyBody().strength(CONFIG.network.chargeStrength))
+  .force("center", d3.forceCenter(networkWidth / 2, networkHeight / 2))
+  .force("collision", d3.forceCollide().radius(d => sizeScale(nodeSizeAccessor(d)) + 4));
+
+const linkSel = linkLayer.selectAll("line")
+  .data(GRAPH_DATA.links)
+  .enter().append("line")
+  .attr("class", "link")
+  .attr("stroke-width", d => 1 + (d.weight || 0) * 4);
+
+const nodeSel = nodeLayer.selectAll("g.node")
+  .data(GRAPH_DATA.nodes)
+  .enter().append("g")
+  .attr("class", "node")
+  .call(d3.drag()
+    .on("start", dragStarted)
+    .on("drag", dragged)
+    .on("end", dragEnded));
+
+nodeSel.append("circle")
+  .attr("r", d => sizeScale(nodeSizeAccessor(d)))
+  .attr("fill", d => colorForType(d.type));
+
+nodeSel.append("text")
+  .attr("dy", d => sizeScale(nodeSizeAccessor(d)) + 12)
+  .attr("text-anchor", "middle")
+  .text(d => d.label.length > 18 ? d.label.slice(0, 16) + "…" : d.label);
+
+nodeSel.on("mouseenter", (event, d) => { if (!tooltipPinned) showTooltip(event, d); })
+  .on("mousemove", (event) => { if (!tooltipPinned) positionTooltip(event); })
+  .on("mouseleave", () => { if (!tooltipPinned) hideTooltip(); })
+  .on("click", (event, d) => {
+    event.stopPropagation();
+    tooltipPinned = true;
+    showTooltip(event, d);
+    selectNode(d.id);
+  });
+
+simulation.on("tick", () => {
+  linkSel
+    .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+    .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+  nodeSel.attr("transform", d => `translate(${d.x},${d.y})`);
+});
+
+function dragStarted(event, d) {
+  if (!event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x; d.fy = d.y;
+}
+function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+function dragEnded(event, d) {
+  if (!event.active) simulation.alphaTarget(0);
+  d.fx = null; d.fy = null;
+}
+
+function updateNetworkHighlight() {
+  if (!selectedId) {
+    nodeSel.classed("faded", false);
+    linkSel.classed("faded", false);
+    nodeSel.select("circle").attr("fill", d => colorForType(d.type));
+    return;
+  }
+  const keep = neighborsOf(selectedId);
+  nodeSel.classed("faded", d => !keep.has(d.id));
+  nodeSel.select("circle").attr("fill", d => d.id === selectedId ? CONFIG.selectedColor : colorForType(d.type));
+  linkSel.classed("faded", l => {
+    const s = typeof l.source === "object" ? l.source.id : l.source;
+    const t = typeof l.target === "object" ? l.target.id : l.target;
+    return s !== selectedId && t !== selectedId;
+  });
+}
+
+// Zoom (network only)
+const zoomBehavior = d3.zoom()
+  .scaleExtent([0.3, 4])
+  .on("zoom", (event) => zoomLayer.attr("transform", event.transform));
+networkSvg.call(zoomBehavior);
+
+d3.select("#zoom-in").on("click", () => networkSvg.transition().call(zoomBehavior.scaleBy, 1.3));
+d3.select("#zoom-out").on("click", () => networkSvg.transition().call(zoomBehavior.scaleBy, 1 / 1.3));
+d3.select("#zoom-reset").on("click", () => networkSvg.transition().call(zoomBehavior.transform, d3.zoomIdentity));
+
+/* =========================================================================
+   7. TIMELINE
+   ========================================================================= */
+const timelineContainer = document.getElementById("timeline-container");
+const timelineSvg = d3.select("#timeline-svg");
+const timelineMargin = { top: 20, right: 30, bottom: 30, left: 30 };
+
+function timelineYearExtent() {
+  const years = [];
+  GRAPH_DATA.timeline.forEach(t => {
+    years.push(t.start);
+    if (t.end != null) years.push(t.end);
+  });
+  if (years.length === 0) return [1900, 2000]; // fallback so axis still renders
+  const [min, max] = d3.extent(years);
+  const pad = CONFIG.timeline.padding;
+  return [min - pad, max + pad];
+}
+
+function renderTimeline() {
+  timelineSvg.selectAll("*").remove();
+  const width = timelineContainer.clientWidth;
+  const height = timelineContainer.clientHeight;
+  const innerWidth = width - timelineMargin.left - timelineMargin.right;
+  const baselineY = height - timelineMargin.bottom - 30;
+
+  const [yMin, yMax] = timelineYearExtent();
+  const xScale = d3.scaleLinear().domain([yMin, yMax]).range([0, innerWidth]);
+
+  const g = timelineSvg.append("g")
+    .attr("transform", `translate(${timelineMargin.left},${timelineMargin.top})`);
+
+  // click-catcher to clear selection
+  timelineSvg.insert("rect", ":first-child")
+    .attr("width", width).attr("height", height)
+    .attr("fill", "transparent")
+    .on("click", () => selectNode(null));
+
+  // ticks
+  const interval = CONFIG.timeline.tickInterval;
+  const tickStart = Math.ceil(yMin / interval) * interval;
+  const ticks = [];
+  for (let y = tickStart; y <= yMax; y += interval) ticks.push(y);
+
+  const tickGroup = g.append("g").attr("class", "ticks");
+  tickGroup.selectAll("line").data(ticks).enter().append("line")
+    .attr("class", "tick-line")
+    .attr("x1", d => xScale(d)).attr("x2", d => xScale(d))
+    .attr("y1", 0).attr("y2", baselineY);
+  tickGroup.selectAll("text").data(ticks).enter().append("text")
+    .attr("class", "tick-label")
+    .attr("x", d => xScale(d))
+    .attr("y", baselineY + 16)
+    .attr("text-anchor", "middle")
+    .text(d => d);
+
+  // baseline
+  g.append("line")
+    .attr("x1", 0).attr("x2", innerWidth)
+    .attr("y1", baselineY).attr("y2", baselineY)
+    .attr("stroke", "var(--grid-line)");
+
+  // group timeline entries by doc_id so each entity gets one lane row if needed
+  const entriesLayer = g.append("g").attr("class", "entries");
+
+  const rangeEntries = GRAPH_DATA.timeline.filter(t => t.type === "range" && t.end != null);
+  const singleEntries = GRAPH_DATA.timeline.filter(t => !(t.type === "range" && t.end != null));
+
+  // arcs for range entries (birth -> death)
+  const arcGen = (d) => {
+    const x1 = xScale(d.start), x2 = xScale(d.end);
+    const midY = baselineY - 24;
+    return `M${x1},${baselineY} Q${(x1 + x2) / 2},${midY} ${x2},${baselineY}`;
+  };
+
+  const arcSel = entriesLayer.selectAll(".timeline-arc")
+    .data(rangeEntries, d => d.id)
+    .enter().append("path")
+    .attr("class", "timeline-arc")
+    .attr("d", arcGen)
+    .attr("stroke", "#3a4258");
+
+  const birthSel = entriesLayer.selectAll(".birth-marker")
+    .data(rangeEntries, d => d.id)
+    .enter().append("circle")
+    .attr("class", "timeline-marker birth-marker")
+    .attr("cx", d => xScale(d.start)).attr("cy", baselineY)
+    .attr("r", 5)
+    .attr("fill", "#5f8fd9");
+
+  const deathSel = entriesLayer.selectAll(".death-marker")
+    .data(rangeEntries, d => d.id)
+    .enter().append("rect")
+    .attr("class", "timeline-marker death-marker")
+    .attr("x", d => xScale(d.end) - 5).attr("y", baselineY - 5)
+    .attr("width", 10).attr("height", 10)
+    .attr("fill", "#5f8fd9");
+
+  const rangeLabels = entriesLayer.selectAll(".range-label")
+    .data(rangeEntries, d => d.id)
+    .enter().append("text")
+    .attr("class", "timeline-label")
+    .attr("x", d => xScale(d.start))
+    .attr("y", baselineY + 28)
+    .attr("text-anchor", "start")
+    .text(d => `${d.label} (${d.start}\u2013${d.end})`);
+
+  const singleSel = entriesLayer.selectAll(".single-marker")
+    .data(singleEntries, d => d.id)
+    .enter().append("path")
+    .attr("class", "timeline-marker single-marker")
+    .attr("transform", d => `translate(${xScale(d.start)},${baselineY}) rotate(45)`)
+    .attr("d", d3.symbol().type(d3.symbolSquare).size(60))
+    .attr("fill", "#8b93a7");
+
+  // interactions
+  function applyEntryHandlers(sel) {
+    sel.on("mouseenter", (event, d) => { if (!tooltipPinned) showTimelineTooltip(event, d); })
+      .on("mousemove", (event) => { if (!tooltipPinned) positionTooltip(event); })
+      .on("mouseleave", () => { if (!tooltipPinned) hideTooltip(); })
+      .on("click", (event, d) => {
+        event.stopPropagation();
+        selectNode(d.doc_id);
+      });
+  }
+  applyEntryHandlers(arcSel);
+  applyEntryHandlers(birthSel);
+  applyEntryHandlers(deathSel);
+  applyEntryHandlers(singleSel);
+
+  function showTimelineTooltip(event, d) {
+    let html = `<div class="t-title">${escapeHtml(d.label)}</div>`;
+    html += `<div class="t-meta">${d.start}${d.end != null ? "\u2013" + d.end : ""}</div>`;
+    tooltip.html(html);
+    positionTooltip(event);
+    tooltip.style("display", "block");
+  }
+
+  timelineSvg._refs = { arcSel, birthSel, deathSel, singleSel, rangeLabels };
+}
+
+function updateTimelineHighlight() {
+  const refs = timelineSvg._refs;
+  if (!refs) return;
+  const isMatch = d => d.doc_id === selectedId;
+  refs.arcSel.attr("stroke", d => selectedId && isMatch(d) ? CONFIG.selectedColor : "#3a4258")
+    .attr("stroke-width", d => selectedId && isMatch(d) ? 3 : 2)
+    .classed("faded", d => selectedId && !isMatch(d));
+  refs.birthSel.attr("fill", d => selectedId && isMatch(d) ? CONFIG.selectedColor : "#5f8fd9")
+    .classed("faded", d => selectedId && !isMatch(d));
+  refs.deathSel.attr("fill", d => selectedId && isMatch(d) ? CONFIG.selectedColor : "#5f8fd9")
+    .classed("faded", d => selectedId && !isMatch(d));
+  refs.singleSel.attr("fill", d => selectedId && isMatch(d) ? CONFIG.selectedColor : "#8b93a7")
+    .classed("faded", d => selectedId && !isMatch(d));
+  refs.rangeLabels.classed("faded", d => selectedId && !isMatch(d));
+}
+
+/* =========================================================================
+   8. RESIZE HANDLING
+   ========================================================================= */
+function handleResize() {
+  networkWidth = networkContainer.clientWidth;
+  networkHeight = networkContainer.clientHeight;
+  simulation.force("center", d3.forceCenter(networkWidth / 2, networkHeight / 2));
+  simulation.alpha(0.3).restart();
+  if (showTimeline) {
+    renderTimeline();
+    updateTimelineHighlight();
+  }
+}
+window.addEventListener("resize", debounce(handleResize, 200));
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+/* =========================================================================
+   9. INIT
+   ========================================================================= */
+const showTimeline = !(CONFIG.layout && CONFIG.layout.show_timeline === false);
+if (!showTimeline) {
+  document.getElementById("app").classList.add("no-timeline");
+}
+renderLegend();
+if (showTimeline) {
+  renderTimeline();
+}
+</script>
+</body>
+</html>
