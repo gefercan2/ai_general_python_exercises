@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lexia — Concentric Text Analysis</title>
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="./lexia_v4_script.js"></script>  
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,500;1,9..144,200&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./lexia_v4_style.css">
+<link>
+
+
+
+
+<style>
+
+</style>
+
+
+
+</head>
+
+
+
+
+
+
+
+
+
+
+
+
+<body>
+
+
+  <div id="container">
+    
+    <div class="stage" id="stage_01">
+      <svg id="network_place"></svg>
+      <div class="stage-next" id="stage1-next" onclick="runAnalysis()">next →</div>
+    </div>
+
+
+
+    <div class="stage" id="stage_02">
+      <div id="back_button_2" onclick="goToStage(1)"> back </div>
+      <div class="stage-next" id="stage2-next" onclick="goStage3FromChart()">next →</div>
+      <div id="layer-chart">
+  <div id="empty">
+    <div class="er"></div><div class="er"></div><div class="er"></div><div class="er"></div>
+    <span class="e-title">Upload a corpus to begin</span>
+    <span class="e-sub">concentric text analysis · four rings</span>
+  </div>
+  <svg id="chart-svg"></svg>
+    
+      </div>
+      <div id="tip"></div>
+    </div>
+
+
+
+    <div class="stage" id="stage_03">
+      <div id="original_text">
+        <div id="back_button_3" onclick="goToStage(2)"> back </div>
+        <div id="ft-tabs"></div>
+        <div id="main_column"></div>
+      </div>
+      <div id="text_sidebar"></div>
+
+      <!-- floating annotate trigger + popup form -->
+      <div id="ann-btn" onclick="openAnnPopup()">✎ annotate</div>
+      <div id="ann-popup">
+        <div class="ann-quote" id="ann-popup-quote"></div>
+        <textarea id="ann-popup-text" placeholder="write your annotation…"></textarea>
+        <div class="ann-popup-row">
+          <button id="ann-save" onclick="saveAnnotation()">save</button>
+          <button id="ann-cancel" onclick="closeAnnPopup()">cancel</button>
+        </div>
+      </div>
+
+      </div>
+    </div>
+
+  </div>
+
+
+
+  <div id="layer-ui-1">
+  <!-- upload-panel, step-conn, blk-b -->
+  <!-- ══ CORPUS PANEL (ingest + configure tabs) ══ -->
+  <div class="panel" id="upload-panel">
+    <div class="drag-handle hopen" id="hdr-a" data-panel="upload-panel"> ::
+      <div class="tog" onclick="toggleBody('body-a','cg-a','hdr-a')">
+        <span class="cg open" id="cg-a"> ...</span>
+        <span class="panel-title c-gold"> CORPUS </span>
+      </div>
+    </div>
+    <div class="panel-body open" id="body-a" style="max-height:700px;opacity:1">
+      <div class="panel-inner" style="gap:0">
+
+        <div id="panel-tabs">
+          <button class="ptab-btn active" id="ptab-ingest" onclick="setPanelTab('ingest')">1. ingest</button>
+          <button class="ptab-btn" id="ptab-config" onclick="setPanelTab('config')">2. configure</button>
+        </div>
+
+        <!-- ── INGEST TAB ── -->
+        <div id="ptab-body-ingest" class="ptab-body">
+          <input type="file" id="file-input" accept=".txt,.md,.csv" multiple>
+          <div id="ingest-zone"
+               ondragover="dzOver(event)" ondragleave="dzLeave()" ondrop="dzDrop(event)"
+               onclick="ingestZoneClick(event)">
+            <div id="ingest-hint">
+              <div class="dz-icon">⌂</div>
+              <div class="dz-label">drop · click to browse · or paste</div>
+              <div class="dz-sub">.txt · .md · .csv · any text</div>
+            </div>
+            <textarea id="paste-area"
+              placeholder=""
+              oninput="pasteInput(this)"
+              onkeydown="event.stopPropagation()"></textarea>
+          </div>
+
+          <div class="prog-wrap" id="prog-wrap">
+            <div class="prog-label" id="prog-label">reading…</div>
+            <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+          </div>
+
+          <div id="files-list"></div>
+
+          <div id="corpus-stats">
+            <div class="stat-row"><span class="stat-k">files</span><span class="stat-v" id="st-files">—</span></div>
+            <div class="stat-row"><span class="stat-k">chars</span><span class="stat-v" id="st-chars">—</span></div>
+          </div>
+
+          <div class="ingest-btn-row">
+            <button id="reset-corpus" onclick="resetCorpus()">↺ reset corpus</button>
+            <button id="next-to-config" onclick="setPanelTab('config')">next →</button>
+          </div>
+        </div>
+
+        <!-- ── CONFIGURE TAB ── -->
+        <div id="ptab-body-config" class="ptab-body" style="display:none">
+          <div id="mode-row">
+            <div class="mode-label">analysis mode</div>
+            <div id="mode-toggle">
+              <button class="mode-btn active" id="mode-corpus" onclick="setMode('corpus')">
+                ◎ corpus
+              </button>
+              <button class="mode-btn" id="mode-compare" onclick="setMode('compare')">
+                ◑ compare
+              </button>
+            </div>
+            <div id="mode-desc">corpus: merge all files into one analysis</div>
+          </div>
+          <div class="sep"></div>
+          <div class="analyse-meta" id="run-meta"></div>
+          <div class="opt-row"><span>top words</span>
+            <input type="range" min="8" max="30" value="18" id="opt-words" oninput="document.getElementById('ov-w').textContent=this.value">
+            <span class="opt-val" id="ov-w">18</span></div>
+          <div class="opt-row"><span>collocate window</span>
+            <input type="range" min="2" max="10" value="5" id="opt-win" oninput="document.getElementById('ov-win').textContent=this.value">
+            <span class="opt-val" id="ov-win">5</span></div>
+          <div class="opt-row">
+            <label><input type="checkbox" id="opt-stops" checked> stopwords</label>
+            <label><input type="checkbox" id="opt-cites" checked> citations</label>
+          </div>
+          
+          <div class="opt-row" style="flex-direction:column;align-items:stretch;gap:6px">
+          <div style="display:flex;justify-content:space-between">
+              <span>quick</span><span>deeper</span>
+         </div>
+          <input type="range" min="0" max="2" step="1" value="0" id="llm-slider"
+                   oninput="setLlmLevel(this.value)" style="width:100%">
+            <div style="text-align:center;font-size:9px;color:var(--t2)" id="llm-level-label">
+              quick · llama3.1:8b
+        </div>
+        </div>
+
+
+          <button class="run-btn" id="run-btn" onclick="runAnalysis()">◎ run analysis</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="step-conn">
+    <div class="sc-line"></div><div class="sc-node" id="sn1">1</div>
+    <div class="sc-line"></div><div class="sc-node" id="sn2">2</div>
+    <div class="sc-line"></div><div class="sc-node" id="sn3">3</div>
+    <div class="sc-line"></div>
+  </div>
+
+    <!-- ══ LEGEND ══ -->
+  <div class="panel" id="legend-panel" style="display:none">
+    <div class="drag-handle hopen" id="hdr-legend" data-panel="legend-panel">
+      <div class="tog" onclick="toggleBody('legend-body','cg-legend','hdr-legend')">
+        <span class="cg open" id="cg-legend">▾</span>
+        <span class="panel-title c-t2">rings</span>
+      </div>
+    </div>
+    <div class="panel-body open" id="legend-body" style="max-height:260px;opacity:1">
+      <div class="panel-inner" style="gap:7px">
+        <div class="lg-title">chart legend</div>
+        <div class="lg-diagram">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="30" fill="none" stroke="var(--rose)" stroke-width="3"/>
+            <circle cx="36" cy="36" r="22" fill="none" stroke="var(--violet)" stroke-width="2"/>
+            <circle cx="36" cy="36" r="14" fill="none" stroke="var(--teal)" stroke-width="1.5"/>
+            <circle cx="36" cy="36" r="5" fill="var(--gold)"/>
+          </svg>
+        </div>
+        <div class="lg-row"><div class="lg-dot" style="background:var(--gold)"></div>C1 topics · word cloud (center)</div>
+        <div class="lg-row"><div class="lg-ring" style="border-color:var(--teal)"></div>C2 paragraph sequence</div>
+        <div class="lg-row"><div class="lg-dot" style="background:var(--violet)"></div>C3 word occurrence trail</div>
+        <div class="lg-row"><div class="lg-ring" style="border-color:var(--rose)"></div>C4 citations (outer)</div>
+      </div>
+    </div>
+  </div>
+
+
+    <!-- Ticker -->
+  <div class="panel" id="aticker" style="display:none;padding:8px 16px">
+    <div class="spin"></div><span id="atick-lbl">initialising…</span>
+  </div>
+  <div id="phase-bar"><div class="pf" id="phase-fill"></div></div>
+<!-- closes layer-ui-1 -->
+
+  </div>
+  
+
+
+
+<div id="layer-ui-2">
+    <!-- ══ STATS ══ -->
+  <div class="panel" id="stats-panel" style="display:none">
+    <div class="drag-handle hopen" id="hdr-stats" data-panel="stats-panel">
+      <div class="tog" onclick="toggleBody('stats-body','cg-stats','hdr-stats')">
+        <span class="cg open" id="cg-stats">▾</span>
+        <span class="panel-title c-t2">corpus metrics</span>
+      </div>
+    </div>
+    <div class="panel-body open" id="stats-body" style="max-height:300px;opacity:1">
+      <div class="panel-inner" id="stats-rows" style="gap:0"></div>
+    </div>
+  </div>
+
+  <!-- ══ ZOOM ══ -->
+  <div class="panel" id="zoom-panel">
+    <div class="drag-handle" id="hdr-zoom" data-panel="zoom-panel" style="padding:5px;justify-content:center;cursor:grab">
+      <span class="c-t3" style="font-size:8px;letter-spacing:.08em">view</span>
+    </div>
+    <button class="zb" onclick="zoomBy(.2)">+</button>
+    <div class="zs"></div><div id="zlabel">100%</div><div class="zs"></div>
+    <button class="zb" onclick="zoomBy(-.2)">−</button>
+    <div class="zs"></div>
+    <button class="zb" style="font-size:11px" onclick="zoomReset()">⟳</button>
+  </div>
+
+  <!-- ══ WORD DETAIL ══ -->
+  <div class="panel" id="word-panel" style="display:none">
+    <div class="drag-handle hopen" id="hdr-word" data-panel="word-panel">
+      <div class="tog" onclick="toggleBody('word-body','cg-word','hdr-word')">
+        <span class="cg open" id="cg-word">▾</span>
+        <span class="panel-title c-violet">word detail</span>
+      </div>
+      <span style="font-size:14px;color:var(--t3);cursor:pointer" onclick="closeWordPanel()">×</span>
+    </div>
+    <div class="panel-body open" id="word-body" style="max-height:400px;opacity:1">
+      <div class="panel-inner">
+        <div class="wp-word" id="wp-word"></div>
+        <div class="wp-freq" id="wp-freq"></div>
+        <div class="sep"></div>
+        <div class="wp-sec">collocates</div><div id="wp-collocates"></div>
+        <div class="wp-freq" id="wp-llm-note" style="font-style:italic;margin-top:4px"></div>
+        <div class="wp-sec">paragraphs</div><div id="wp-paras"></div>
+        <div class="wp-sec">tf-idf score</div><div class="wp-freq" id="wp-tfidf"></div>
+      </div>
+    </div>
+  </div>
+  <!-- ══ CONTEXT READER ══ -->
+  <div class="panel" id="ctx-panel" style="display:none">
+    <div class="drag-handle hopen" id="hdr-ctx" data-panel="ctx-panel">
+      <div class="tog" onclick="toggleBody('ctx-body','cg-ctx','hdr-ctx')">
+        <span class="cg open" id="cg-ctx">▾</span>
+        <span class="panel-title c-teal">context reader</span>
+      </div>
+      <span style="font-size:14px;color:var(--t3);cursor:pointer" onclick="closeCtxPanel()">×</span>
+    </div>
+    <div class="panel-body open" id="ctx-body" style="max-height:260px;opacity:1">
+      <div class="panel-inner">
+        <div class="ctx-meta" id="ctx-meta"></div>
+        <div class="ctx-text" id="ctx-text"></div>
+        <div class="ctx-meta" id="ctx-llm-summary" style="margin-top:6px;color:var(--gold2)"></div>
+        <div class="ctx-nav">
+          <button class="ctx-nb" onclick="ctxNav(-1)">← prev</button>
+          <button class="ctx-nb" onclick="ctxNav(1)">next →</button>
+          <button class="ctx-nb" onclick="showFullText()">see text complete</button>
+          <button class="ctx-nb" onclick="closeCtxPanel()" style="margin-left:auto">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script src="llm.js"></script> 
+
+
+</body>
+
+</html>
